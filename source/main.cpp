@@ -10,7 +10,7 @@
 
 void help(){
     
-    std::cout << "#######################\nHelp for get4foldSites 24012017 \n#######################\n";
+    std::cout << "#######################\nHelp for get4foldSites 13062022 \n#######################\n";
     std::cout << "Usage: get4foldSites -infile in.txt -outfile res.fas -iupac 0/1 -verbose 0/1" << std::endl;
     std::cout << "infile should contain full path of files to screen for 4 fold sites (1 file per line)." << std::endl;
     std::cout << "outfile will contain all 4-fold degenerate sites found." << std::endl;
@@ -84,7 +84,12 @@ int main(int argc, const char * argv[]){
             std::clog << "<get4foldSites> Adding " << vSitesToAdd.size()  <<" 4-fold degenerate sites from file " << vFastaFiles.at(ifile) << std::endl;
         }
 
-        fasta4Fold.free_concatenate(afastaTemp4Fold);
+        if(ifile == 0){
+            fasta4Fold = afastaTemp4Fold;
+        }
+        else{
+            fasta4Fold.free_concatenate(afastaTemp4Fold, false);
+        }
     }
      fasta4Fold.write_to_file(aOutfile);
     
