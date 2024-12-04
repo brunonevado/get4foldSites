@@ -10,11 +10,12 @@
 
 void help(){
     
-    std::cout << "#######################\nHelp for get4foldSites 13062022 \n#######################\n";
-    std::cout << "Usage: get4foldSites -infile in.txt -outfile res.fas -iupac 0/1 -verbose 0/1" << std::endl;
+    std::cout << "#######################\nHelp for get4foldSites 04122024 \n#######################\n";
+    std::cout << "Usage: get4foldSites -infile in.txt -outfile res.fas -iupac 0/1 -verbose 0/1 -exclude 1/0" << std::endl;
     std::cout << "infile should contain full path of files to screen for 4 fold sites (1 file per line)." << std::endl;
     std::cout << "outfile will contain all 4-fold degenerate sites found." << std::endl;
     std::cout << "if -iupac 1, will consider positions with 'diploid' IUPAC codes." << std::endl;
+    std::cout << "if -exclude 1, will instead output sites that are NOT 4-fold degenerate." << std::endl;
     std::cout << "Note: tested on linux with g++ v5. Earlier version (4.8) did not work." << std::endl;
 }
 
@@ -27,7 +28,7 @@ int main(int argc, const char * argv[]){
     sargs myargs;
     try{
         myargs = args::getargs(argc, argv, std::vector<std::string> {"infile", "outfile"},
-                               std::vector<std::string> {"iupac","verbose"}, std::vector<std::string>  {}, std::string {}, std::string {}); }
+                               std::vector<std::string> {"iupac","verbose","exclude"}, std::vector<std::string>  {}, std::string {}, std::string {}); }
     catch (std::string e){
         std::cout << " Args failed: " << e << std::endl;
         help();
@@ -38,7 +39,8 @@ int main(int argc, const char * argv[]){
     std::string aOutfile =   myargs.args_string.at(1);
     bool aIupac = myargs.args_booleans.at(0);
     bool verbose = myargs.args_booleans.at(1);
-    
+    bool exclude4fold = myargs.args_booleans.at(2);
+ 
     // GET NAMES OF FILES TO SCREEN
     std::string cline;
     std::vector<std::string> vFastaFiles;
@@ -69,10 +71,10 @@ int main(int argc, const char * argv[]){
         if(aIupac){
             fasta afasta_iupac(1, true);
             afasta_iupac.octo_from_hap(afasta);
-            vSitesToAdd = afasta_iupac.get_4fold_sites0();
+            vSitesToAdd = afasta_iupac.get_4fold_sites0(exclude4fold);
         }
         else{
-            vSitesToAdd = afasta.get_4fold_sites0();
+            vSitesToAdd = afasta.get_4fold_sites0(exclude4fold);
         }
         fasta afastaTemp4Fold(1);
         afastaTemp4Fold.set_num_inds(afasta.num_lines());
@@ -81,7 +83,12 @@ int main(int argc, const char * argv[]){
             afastaTemp4Fold.append_site(afasta.show_site0(isite));
         }
         if(verbose){
-            std::clog << "<get4foldSites> Adding " << vSitesToAdd.size()  <<" 4-fold degenerate sites from file " << vFastaFiles.at(ifile) << std::endl;
+            if(exclude4fold){
+                std::clog << "<get4foldSites> Adding " << vSitesToAdd.size()  <<  " NON-4-fold degenerate sites from file " << vFastaFiles.at(ifile) << std::endl;
+            }
+            else{
+                std::clog << "<get4foldSites> Adding " << vSitesToAdd.size()  <<  " 4-fold degenerate sites from file " << vFastaFiles.at(ifile) << std::endl;
+            }
         }
 
         if(ifile == 0){
@@ -93,9 +100,15 @@ int main(int argc, const char * argv[]){
     }
      fasta4Fold.write_to_file(aOutfile);
     
+    if(!exclude4fold){
     std::clog << "<get4foldSites> Finished, read " << vFastaFiles.size() << " fasta files, printed "
     << fasta4Fold.num_bases() << " 4-fold degenerate sites to file " << aOutfile  <<  std::endl;
-    
+    }
+    else{
+   std::clog << "<get4foldSites> Finished, read " << vFastaFiles.size() << " fasta files, printed "
+    << fasta4Fold.num_bases() << " NON-4-fold degenerate sites to file " << aOutfile  <<  std::endl;
+
+    }
     return 0;
 }
 

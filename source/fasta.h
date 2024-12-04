@@ -42,7 +42,7 @@ public:
     void append_site (const std::string & site);
     
     void octo_from_hap ( const fasta &original );
-    std::vector <int> get_4fold_sites0(  ) const;
+    std::vector <int> get_4fold_sites0( bool exclude4fold ) const;
     void free_concatenate ( const fasta & al2, bool verbose = false );
     
     void write_random ( const std::string & outfile, const std::string & name, int len ) const;

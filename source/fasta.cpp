@@ -337,29 +337,39 @@ void fasta::free_concatenate(const fasta &fasta2, bool verbose){
     }
 }
 
-std::vector <int> fasta::get_4fold_sites0( ) const {
+std::vector <int> fasta::get_4fold_sites0(bool exclude4fold ) const {
     // returns vector of 0-index positions of all 4-fold sites
     // sequence should be aligned and in frame
     // skips any codons that have ambiguous/gaps
     std::vector <int> sites0;
     for (unsigned int isite = 0; isite < this->num_bases(); isite += 3) {
         std::string codon= "";
-        bool addSite = false;  // skip if there are no fully resolved codons
+        bool is4fold = false;  // skip if there are no fully resolved codons
         for (unsigned int iline = 0; iline < this->num_lines(); iline++) {
             codon =  matrix.at(iline).substr( isite, 3 );
             if(genetic_code.count(codon) == 0){
                 continue;
             }
             if( codon_is_4fold(codon) ){
-                addSite = true;
+                is4fold = true;
             }
             else{
-                addSite = false;
+                is4fold = false;
                 break;
             }
         }
-        if(addSite){
+        // consider here if we wantg 4-fold or non-4-fold sites.
+        if(!exclude4fold && is4fold){
+            // note that only the third position of the codon is 4-fold
             sites0.push_back(isite + 2);
+        }
+        else if(exclude4fold){
+            // if we want non-4fold, we always include first 2 positions, and then maybe the 3rd (if it is not 4fold)
+            sites0.push_back(isite );
+            sites0.push_back(isite + 1);
+            if(!is4fold){
+                sites0.push_back(isite + 2);
+            }
         }
     }
     return sites0;

@@ -4,7 +4,7 @@ PROGRAM=get4foldSites
 
 CC=g++
 
-CFLAGS=-Wall -O3 -std=c++11
+CFLAGS=-Wall -O3 -std=c++17
 
 
 $PROGRAM: source/main.cpp source/args.h source/args.cpp source/common.h source/common.cpp source/fasta.h source/fasta.cpp
