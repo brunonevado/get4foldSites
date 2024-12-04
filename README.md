@@ -1,6 +1,6 @@
-# concatenateFasta
+# get4foldSites
 
-get4foldSites:  returns 4-fold degenerate sites from fasta files.  
+get4foldSites:  returns 4-fold degenerate sites (or all but the 4-fold sites) from fasta files.  
   
 Author: B. Nevado  
   
